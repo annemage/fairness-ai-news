@@ -1,1 +1,284 @@
-{"updated": null, "papers": []}
+{
+ "updated": "2026-10-05T13:43+00:00",
+ "edition": 1,
+ "categories": {
+  "notions": {
+   "section": "ml",
+   "label": "Fairness notions & theory"
+  },
+  "methods": {
+   "section": "ml",
+   "label": "Bias mitigation"
+  },
+  "genai": {
+   "section": "ml",
+   "label": "LLMs & generative AI"
+  },
+  "audits": {
+   "section": "ml",
+   "label": "Audits & benchmarks"
+  },
+  "apps": {
+   "section": "ml",
+   "label": "Applications"
+  },
+  "policy": {
+   "section": "ml",
+   "label": "Policy, law & society"
+  },
+  "voting": {
+   "section": "sc",
+   "label": "Voting & elections"
+  },
+  "pb": {
+   "section": "sc",
+   "label": "Participatory budgeting"
+  },
+  "division": {
+   "section": "sc",
+   "label": "Fair division"
+  },
+  "matching": {
+   "section": "sc",
+   "label": "Matching & markets"
+  },
+  "mechanisms": {
+   "section": "sc",
+   "label": "Mechanism design & games"
+  }
+ },
+ "sections": {
+  "ml": "Algorithmic fairness",
+  "sc": "Social choice & fair division"
+ },
+ "papers": [
+  {
+   "id": "doi:10.1613/jair.1.21172",
+   "arxiv": null,
+   "title": "Bounding the Fairness of a Classifier Using Population-level Statistics",
+   "headline": "Bounding classifier unfairness using only population statistics",
+   "blurb": "A new method lower-bounds a classifier's inaccuracy-unfairness discrepancy from aggregate rates alone, enabling audits without access to models or individual data.",
+   "section": "ml",
+   "category": "audits",
+   "score": 4,
+   "authors": "Sivan Sabato, E. Yom-Tov",
+   "url": "https://doi.org/10.1613/jair.1.21172",
+   "date": "2026-08-05",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "JAIR",
+   "venue_year": 2026,
+   "dblp": null,
+   "ai": true
+  },
+  {
+   "id": "doi:10.1145/3805689.3806457",
+   "arxiv": null,
+   "title": "Performative Castelessness or Ignorant Castefulness? Influence of Mahalanobis' Caste-Distance in Responsible AI Frameworks",
+   "headline": "Caste bias hidden in common fairness toolkits, study argues",
+   "blurb": "The paper traces the casteist and eugenicist roots of Mahalanobis distance used in AI Fairness 360 and critiques India's Responsible AI strategy for ignoring caste bias.",
+   "section": "ml",
+   "category": "policy",
+   "score": 4,
+   "authors": "Nishanshi Shukla",
+   "url": "https://doi.org/10.1145/3805689.3806457",
+   "date": "2026-06-25",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "FAccT",
+   "venue_year": 2026,
+   "dblp": "conf/fat/Shukla26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1145/3805689.3812417",
+   "arxiv": null,
+   "title": "Beyond Base Metric: The Critical and Overlooked Role of Meta-Metrics in Intersectional Fairness",
+   "headline": "Meta-metric choices drive conflicting intersectional fairness verdicts",
+   "blurb": "The paper shows that how subgroup disparities are aggregated into a single fairness score strongly affects conclusions, proposing a taxonomy and guidelines for justified aggregation.",
+   "section": "ml",
+   "category": "notions",
+   "score": 4,
+   "authors": "Jean-Baptiste Monnier, Thomas George, Frédéric Guyard et al.",
+   "url": "https://doi.org/10.1145/3805689.3812417",
+   "date": "2026-06-25",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "FAccT",
+   "venue_year": 2026,
+   "dblp": "conf/fat/MonnierGGTK26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1145/3805689.3806487",
+   "arxiv": null,
+   "title": "FairHireBench: A Cross-Generational Intersectional Bias Benchmark for Large Language Models in Automated Hiring",
+   "headline": "Intersectional bias amplifies 2.5x in LLM hiring decisions",
+   "blurb": "A benchmark of 10,000+ profiles across 15 intersectional groups finds large language models show significantly amplified discrimination beyond single-attribute bias.",
+   "section": "ml",
+   "category": "genai",
+   "score": 4,
+   "authors": "Sweta J Ratnani, Ling-Yao Li, Yitian Lou et al.",
+   "url": "https://doi.org/10.1145/3805689.3806487",
+   "date": "2026-06-25",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "FAccT",
+   "venue_year": 2026,
+   "dblp": "conf/fat/RatnaniLLLH26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1145/3805689.3806732",
+   "arxiv": null,
+   "title": "Diagnosing Algorithmic Bias: A Group Influence Framework for Fairness Auditing",
+   "headline": "Group influence functions diagnose roots of algorithmic bias",
+   "blurb": "Decomposing training influence into intra- and inter-group components reveals stereotyping and under-learning failure modes, enabling targeted bias mitigation on COMPAS and ADULT data.",
+   "section": "ml",
+   "category": "audits",
+   "score": 4,
+   "authors": "O. J. Akintande, Amirreza Takhsha, Sune Holm et al.",
+   "url": "https://doi.org/10.1145/3805689.3806732",
+   "date": "2026-06-25",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "FAccT",
+   "venue_year": 2026,
+   "dblp": "conf/fat/AkintandeTHFB26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1145/3805689.3806494",
+   "arxiv": null,
+   "title": "Learning Fairness in Multi-agent Systems with Distributed-Evaluation, Centralized-AIIocation",
+   "headline": "Reinforcement learning balances fairness and utility in resource allocation",
+   "blurb": "New Double Deep Q-Learning methods learn fair, efficient allocation policies in centralized multi-agent resource allocation, outperforming existing fair MARL approaches.",
+   "section": "sc",
+   "category": "mechanisms",
+   "score": 3,
+   "authors": "Ashwin Kumar, William Yeoh",
+   "url": "https://doi.org/10.1145/3805689.3806494",
+   "date": "2026-06-25",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "FAccT",
+   "venue_year": 2026,
+   "dblp": "conf/fat/KumarY26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1145/3805689.3812278",
+   "arxiv": null,
+   "title": "When Efficiency Shapes Fairness: Cost-Optimised Human-in-the-Loop Routing",
+   "headline": "Human review routing reshapes fairness without retraining models",
+   "blurb": "Studying deployment-time routing of cases to human review, the authors show risk-based routing reduces fairness violations better than uncertainty-based routing in credit decisions.",
+   "section": "ml",
+   "category": "methods",
+   "score": 3,
+   "authors": "Veronica Breene, Adrian O'Hagan, F. Costello",
+   "url": "https://doi.org/10.1145/3805689.3812278",
+   "date": "2026-06-25",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "FAccT",
+   "venue_year": 2026,
+   "dblp": "conf/fat/BreeneOC26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1145/3805689.3812337",
+   "arxiv": null,
+   "title": "Options Without Agency: Diversity as a Requirement for Fair Actionable Recourse",
+   "headline": "Diverse counterfactuals needed for fair algorithmic recourse",
+   "blurb": "The paper argues existing recourse fairness metrics miss diversity of options, introducing a new metric showing diversity reveals fairness issues standard measures overlook.",
+   "section": "ml",
+   "category": "notions",
+   "score": 3,
+   "authors": "Peter M. VanNostrand, Dennis M. Hofmann, Lei Ma et al.",
+   "url": "https://doi.org/10.1145/3805689.3812337",
+   "date": "2026-06-25",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "FAccT",
+   "venue_year": 2026,
+   "dblp": "conf/fat/VanNostrandHMR26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1109/ecai69016.2026.11613840",
+   "arxiv": null,
+   "title": "A Study on AI Readiness and Bias Risk in AI Based Recruitment Evidence from Selected IT Companies",
+   "headline": "Survey links AI readiness to bias risk in IT hiring",
+   "blurb": "A mixed-methods study of HR professionals finds that organizational AI readiness correlates with better management of bias risk in AI-based recruitment.",
+   "section": "ml",
+   "category": "apps",
+   "score": 2,
+   "authors": "M.Pravallika Reddy, Thota Akhila, Thaya Madhavi et al.",
+   "url": "https://doi.org/10.1109/ECAI69016.2026.11613840",
+   "date": "2026-07-01",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "ECAI",
+   "venue_year": 2026,
+   "dblp": "conf/ecai2/ReddyAMSK26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1109/ecai69016.2026.11613739",
+   "arxiv": null,
+   "title": "Ethical Principles for the Use of AI in the Military Domain",
+   "headline": "Ethical governance framework proposed for military AI",
+   "blurb": "The paper compares ISO/IEC and IEEE standards to propose a cross-sectoral governance framework for trustworthy military AI, including fairness and non-discrimination requirements.",
+   "section": "ml",
+   "category": "policy",
+   "score": 2,
+   "authors": "Claudiu-Sorin Cleoanta",
+   "url": "https://doi.org/10.1109/ECAI69016.2026.11613739",
+   "date": "2026-07-01",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "ECAI",
+   "venue_year": 2026,
+   "dblp": "conf/ecai2/Cleoanta26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1109/ecai69016.2026.11613827",
+   "arxiv": null,
+   "title": "Personalized Ballot Navigation Using Machine Learning for Visually Impaired Voters",
+   "headline": "Machine learning personalizes ballots for blind voters",
+   "blurb": "An adaptive ML interface for visually impaired voters cuts ballot completion time and errors in simulation, aiming to improve electoral accessibility.",
+   "section": "ml",
+   "category": "apps",
+   "score": 2,
+   "authors": "Shat Mohammed Z.M.",
+   "url": "https://doi.org/10.1109/ECAI69016.2026.11613827",
+   "date": "2026-07-01",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "ECAI",
+   "venue_year": 2026,
+   "dblp": "conf/ecai2/M26",
+   "ai": true
+  },
+  {
+   "id": "doi:10.1145/3805689.3806733",
+   "arxiv": null,
+   "title": "Fair Play: Exploring Play, Accessibility and Representation Towards a Framework for Fairness in Digital Games",
+   "headline": "Framework unites accessibility and representation as game fairness",
+   "blurb": "A new 'Fair Play' framework and card-based design tool frame accessibility, representation and play as interdependent dimensions of fairness in digital games.",
+   "section": "ml",
+   "category": "policy",
+   "score": 2,
+   "authors": "V. Mota, Camila Laranjeira da Silva, Thaís Steinmüller et al.",
+   "url": "https://doi.org/10.1145/3805689.3806733",
+   "date": "2026-06-25",
+   "added": "2026-10-05",
+   "edition": 1,
+   "venue": "FAccT",
+   "venue_year": 2026,
+   "dblp": "conf/fat/MotaSSD26",
+   "ai": true
+  }
+ ]
+}
