@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Fairness Dispatch</title>
+<meta name="description" content="New research on fairness in AI, algorithmic fairness, computational social choice and fair division - updated automatically.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --paper: #ffffff; --ink: #141414; --muted: #5b5b5b; --rule: #e2e2e2;
+    --ml: #b80000; --sc: #1f5aa6; --chip: #f3f3f3; --link-hover: #b80000;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121212; --paper: #121212; --ink: #ececec; --muted: #a3a3a3; --rule: #2c2c2c;
+            --ml: #ff6b6b; --sc: #74a7ff; --chip: #1f1f1f; --link-hover: #ff8a8a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  html, body { overflow-x: hidden; }
+  .front > *, .grid > *, .list .story > * { min-width: 0; }
+  .story h2, .story h3, .blurb { overflow-wrap: break-word; }
+
+  header.mast { border-bottom: 1px solid var(--rule); }
+  .mast-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+              padding: 22px 0 6px; flex-wrap: wrap; }
+  .mast h1 { font: 900 clamp(32px, 6vw, 56px)/1 "Playfair Display", Georgia, serif; margin: 0;
+             letter-spacing: -0.5px; }
+  .mast .meta { color: var(--muted); font-size: 13px; text-align: right; }
+  nav { display: flex; flex-wrap: wrap; gap: 0 4px; border-top: 1px solid var(--rule); margin-top: 14px; }
+  nav button { background: none; border: 0; border-bottom: 3px solid transparent; color: var(--ink);
+               font: 600 14px Inter, sans-serif; padding: 12px 12px 9px; cursor: pointer; white-space: nowrap; }
+  nav button:hover { border-bottom-color: var(--rule); }
+  nav button.on { border-bottom-color: var(--ink); }
+  nav button[data-s="ml"].on { border-bottom-color: var(--ml); }
+  nav button[data-s="socialchoice"].on { border-bottom-color: var(--sc); }
+  nav .spacer { flex: 1; }
+  nav label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted);
+              padding: 0 8px; white-space: nowrap; cursor: pointer; }
+
+  .tag { font: 700 11px Inter, sans-serif; text-transform: uppercase; letter-spacing: .6px; }
+  .tag.ml { color: var(--ml); } .tag.socialchoice { color: var(--sc); }
+  .story h2, .story h3 { margin: 4px 0 6px; font-weight: 700; letter-spacing: -0.2px; }
+  .story a:hover h2, .story a:hover h3 { color: var(--link-hover); text-decoration: underline; }
+  .story p.blurb { margin: 0 0 8px; color: var(--ink); opacity: .88; }
+  .byline { font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+  .venue { background: var(--chip); border: 1px solid var(--rule); border-radius: 3px; padding: 0 6px;
+           font-weight: 600; color: var(--ink); font-size: 12px; }
+  .venue.pre { font-weight: 500; color: var(--muted); }
+  .byline a:hover { text-decoration: underline; }
+
+  .front { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; padding: 24px 0;
+           border-bottom: 1px solid var(--rule); }
+  .lead h2 { font: 700 clamp(26px, 3.4vw, 38px)/1.12 "Playfair Display", Georgia, serif; }
+  .lead p.blurb { font-size: 18px; }
+  .lead { border-left: 6px solid var(--ml); padding-left: 18px; }
+  .lead.socialchoice { border-left-color: var(--sc); }
+  .side { display: flex; flex-direction: column; gap: 18px; }
+  .side .story + .story { border-top: 1px solid var(--rule); padding-top: 16px; }
+  .side h3 { font-size: 20px; line-height: 1.22; }
+
+  section.block { padding: 22px 0 8px; }
+  section.block > h4 { margin: 0 0 14px; font: 700 18px Inter, sans-serif; display: flex; align-items: center; gap: 10px; }
+  section.block > h4::after { content: ""; flex: 1; border-top: 1px solid var(--rule); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px 22px; }
+  .grid .story { border-top: 3px solid var(--rule); padding-top: 10px; }
+  .grid .story.ml { border-top-color: var(--ml); }
+  .grid .story.socialchoice { border-top-color: var(--sc); }
+  .grid h3 { font-size: 17px; line-height: 1.25; }
+  .grid p.blurb { font-size: 14.5px; }
+
+  .list .story { display: grid; grid-template-columns: 110px 1fr; gap: 14px; padding: 12px 0;
+                 border-top: 1px solid var(--rule); }
+  .list .when { font-size: 12.5px; color: var(--muted); padding-top: 3px; }
+  .list h3 { font-size: 17px; margin-top: 0; }
+  .list p.blurb { font-size: 14.5px; }
+  .more { display: block; margin: 18px auto 40px; background: none; border: 1px solid var(--rule);
+          color: var(--ink); padding: 10px 22px; font: 600 14px Inter, sans-serif; cursor: pointer; border-radius: 3px; }
+  .more:hover { border-color: var(--ink); }
+  .empty { padding: 60px 0; text-align: center; color: var(--muted); }
+  footer { border-top: 1px solid var(--rule); color: var(--muted); font-size: 13px; padding: 18px 0 40px; }
+
+  @media (max-width: 960px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 720px) {
+    .front { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+    .list .story { grid-template-columns: 1fr; gap: 2px; }
+    .mast .meta { text-align: left; }
+    nav button { padding: 10px 8px 8px; font-size: 13.5px; }
+    nav .spacer { display: none; }
+    nav label { width: 100%; padding: 6px 8px 10px; }
+  }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap">
+    <div class="mast-top">
+      <h1>The Fairness Dispatch</h1>
+      <div class="meta"><div id="today"></div><div id="updated"></div></div>
+    </div>
+    <nav>
+      <button data-s="all" class="on">All stories</button>
+      <button data-s="ml">Algorithmic fairness</button>
+      <button data-s="socialchoice">Social choice &amp; fair division</button>
+      <span class="spacer"></span>
+      <label><input type="checkbox" id="pubonly"> Peer-reviewed only</label>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main"><div class="empty">Loading the latest research…</div></main>
+
+<footer class="wrap">
+  Headlines and summaries are generated automatically from paper abstracts (arXiv, Semantic Scholar) and may contain errors. Always read the paper.
+  Venue information via Semantic Scholar / DBLP.
+</footer>
+
+<script>
+const SECTION = { ml: "Algorithmic fairness", socialchoice: "Social choice & fair division" };
+let ALL = [], section = "all", pubOnly = false, listShown = 30;
+
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function fmtDate(d) {
+  if (!d) return "";
+  const dt = new Date(d.length === 4 ? d + "-01-01" : d);
+  return isNaN(dt) ? d : dt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+function venueChip(p) {
+  if (p.venue) {
+    const label = esc(p.venue) + (p.venue_year && !String(p.venue).includes(p.venue_year) ? " " + p.venue_year : "");
+    return p.dblp
+      ? `<a class="venue" href="https://dblp.org/rec/${esc(p.dblp)}" target="_blank" rel="noopener" title="DBLP record">${label}</a>`
+      : `<span class="venue">${label}</span>`;
+  }
+  return `<span class="venue pre">arXiv preprint</span>`;
+}
+function byline(p, withDate = true) {
+  return `<div class="byline">${venueChip(p)}<span>${esc(p.authors)}</span>${withDate ? `<span>${fmtDate(p.date)}</span>` : ""}</div>`;
+}
+function story(p, level = "h3", extraClass = "") {
+  return `<article class="story ${p.section} ${extraClass}">
+    <div class="tag ${p.section}">${SECTION[p.section]}</div>
+    <a href="${esc(p.url)}" target="_blank" rel="noopener"><${level}>${esc(p.headline)}</${level}></a>
+    <p class="blurb">${esc(p.blurb)}</p>
+    ${byline(p)}
+  </article>`;
+}
+
+function render() {
+  const items = ALL.filter(p => (section === "all" || p.section === section) && (!pubOnly || p.venue));
+  const main = document.getElementById("main");
+  if (!items.length) { main.innerHTML = `<div class="empty">No stories here yet - check back after the next update.</div>`; return; }
+
+  // Front page: the most recent edition, ranked by score
+  const latest = items[0].added;
+  const edition = items.filter(p => p.added === latest).sort((a, b) => b.score - a.score || (b.date > a.date ? 1 : -1));
+  const rest = items.filter(p => p.added !== latest);
+  const top = edition.slice(0, 3), grid = edition.slice(3);
+
+  let html = `<div class="front">
+    <div class="lead ${top[0].section}">${story(top[0], "h2")}</div>
+    <div class="side">${top.slice(1).map(p => story(p)).join("")}</div>
+  </div>`;
+  if (grid.length) html += `<section class="block"><h4>More from this edition</h4><div class="grid">${grid.map(p => story(p)).join("")}</div></section>`;
+  if (rest.length) {
+    html += `<section class="block"><h4>Earlier stories</h4><div class="list">` +
+      rest.slice(0, listShown).map(p => `<article class="story ${p.section}">
+        <div class="when">${fmtDate(p.added)}<br><span class="tag ${p.section}">${p.section === "ml" ? "Algorithmic" : "Social choice"}</span></div>
+        <div><a href="${esc(p.url)}" target="_blank" rel="noopener"><h3>${esc(p.headline)}</h3></a>
+        <p class="blurb">${esc(p.blurb)}</p>${byline(p)}</div></article>`).join("") +
+      `</div>${rest.length > listShown ? `<button class="more" id="more">Show more stories</button>` : ""}</section>`;
+  }
+  main.innerHTML = html;
+  const more = document.getElementById("more");
+  if (more) more.onclick = () => { listShown += 30; render(); };
+}
+
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+  section = b.dataset.s; listShown = 30; render();
+});
+document.getElementById("pubonly").onchange = e => { pubOnly = e.target.checked; render(); };
+document.getElementById("today").textContent =
+  new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+fetch("papers.json", { cache: "no-cache" }).then(r => r.json()).then(d => {
+  ALL = d.papers || [];
+  if (d.updated) document.getElementById("updated").textContent = "Updated " +
+    new Date(d.updated).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  render();
+}).catch(() => {
+  document.getElementById("main").innerHTML = `<div class="empty">Could not load papers.json.</div>`;
+});
+</script>
+</body>
+</html>
