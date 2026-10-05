@@ -2,7 +2,7 @@ name: Update papers
 
 on:
   schedule:
-    - cron: "0 5 * * *"   # every day at 05:00 UTC (07:00 in Central European summer time)
+    - cron: "0 5 * * 1"   # Mondays at 05:00 UTC (07:00 Central European summer time)
   workflow_dispatch:      # "Run workflow" button in the Actions tab
 
 permissions:
@@ -26,13 +26,14 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           MODEL: ${{ vars.MODEL }}
-          MAX_PAPERS: ${{ vars.MAX_PAPERS }}
+          MAX_PER_WEEK: ${{ vars.MAX_PER_WEEK }}
+          PEER_LOOKBACK_WEEKS: ${{ vars.PEER_LOOKBACK_WEEKS }}
           S2_API_KEY: ${{ secrets.S2_API_KEY }}
         run: python scripts/update.py
       - name: Commit if changed
         run: |
           git config user.name "fairness-news-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/papers.json data/seen.json
+          git add docs/papers.json data/
           git diff --cached --quiet || git commit -m "Update papers $(date -u +%F)"
           git push
