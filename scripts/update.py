@@ -45,6 +45,7 @@ PAPERS_FILE = ROOT / "docs" / "papers.json"
 SEEN_FILE = ROOT / "data" / "seen.json"
 TRIAGE_FILE = ROOT / "data" / "triage.json"
 BUDGET_FILE = ROOT / "data" / "budget.json"
+AWARDS_FILE = ROOT / "data" / "awards.json"   # hand-edited: [{"match": doi|arXiv id|title, "award": "..."}]
 
 
 def env_int(name, default):
@@ -228,6 +229,8 @@ def http(url, data=None, headers=None, tries=7):
     h = {"User-Agent": UA, **(headers or {})}
     if "semanticscholar.org" in url and os.environ.get("S2_API_KEY"):
         h["x-api-key"] = os.environ["S2_API_KEY"]
+    if "semanticscholar.org" in url:
+        tries = min(tries, 5)  # its shared anonymous quota can stay busy; don't stall the run
     body = json.dumps(data).encode() if data is not None else None
     if body is not None:
         h["Content-Type"] = "application/json"
@@ -307,6 +310,19 @@ def guess_section(p):
     return "ml"
 
 
+AWARD_RX = re.compile(
+    r"\b((best|outstanding|distinguished)( student| short| theory| application| demo)? paper"
+    r"|paper award|test of time award|honou?rable mention)\b", re.I)
+
+
+def award_from(comment):
+    """'Accepted at IJCAI 2026; Best Paper Award' -> 'Best Paper Award' (the matching clause)."""
+    for part in re.split(r"[;.\n]|\s-\s", comment or ""):
+        if AWARD_RX.search(part):
+            return squash(part).strip(" ,()")[:120]
+    return ""
+
+
 def opening(abstract, words=60):
     w = abstract.split()
     return " ".join(w[:words]) + (" ..." if len(w) > words else "")
@@ -325,7 +341,7 @@ def fetch_arxiv(since):
     cats = " OR ".join(f"cat:{c}" for c in ARXIV_CATS)
     terms = " OR ".join(f'abs:"{t}"' if (" " in t or "-" in t) else f"abs:{t}" for t in ARXIV_TERMS)
     query = f"({cats}) AND ({terms})"
-    ns = {"a": "http://www.w3.org/2005/Atom"}
+    ns = {"a": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
     out, start, page = [], 0, 200
     while start < 5000:
         url = "https://export.arxiv.org/api/query?" + urllib.parse.urlencode({
@@ -351,6 +367,7 @@ def fetch_arxiv(since):
                 "url": f"https://arxiv.org/abs/{aid}",
                 "date": published[:10],
                 "venue": "", "venue_year": None, "dblp": None,
+                "award": award_from(e.findtext("arxiv:comment", "", ns)),
             })
         if done or len(entries) < page:
             break
@@ -437,6 +454,32 @@ def fetch_crossref(since):
             time.sleep(1)
     log(f"Crossref (IJCAI, AAAI, AIES, ...): {len(out)} papers since {since.date()}")
     return out
+
+
+def arxiv_awards(arxiv_ids):
+    """arXiv id -> award text found in the paper's arXiv comment (only ids with an award)."""
+    ns = {"a": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
+    found, ids = {}, list(dict.fromkeys(arxiv_ids))
+    for i in range(0, len(ids), 100):
+        url = "https://export.arxiv.org/api/query?" + urllib.parse.urlencode(
+            {"id_list": ",".join(ids[i:i + 100]), "max_results": 100})
+        for e in ET.fromstring(http(url)).findall("a:entry", ns):
+            aid = re.sub(r"v\d+$", "", e.findtext("a:id", "", ns).rsplit("/abs/", 1)[-1])
+            award = award_from(e.findtext("arxiv:comment", "", ns))
+            if award:
+                found[aid] = award
+        time.sleep(3)
+    return found
+
+
+def apply_manual_awards(papers):
+    for entry in load_json(AWARDS_FILE, []):
+        m = (entry.get("match") or "").strip().lower()
+        if not m or not entry.get("award"):
+            continue
+        for p in papers:
+            if m in (p["id"].lower(), (p.get("arxiv") or "").lower(), "doi:" + m) or title_key(m) == title_key(p["title"]):
+                p["award"] = entry["award"]
 
 
 def s2_venue_lookup(arxiv_ids):
@@ -608,7 +651,8 @@ def write_stories(papers, sections, use_claude):
 def select(pool, verdicts, slots, now):
     """Peer-reviewed first (newest week first), then preprints; MIN_PER_SECTION per section."""
     def priority(c):
-        return (0 if c["venue"] else 1, days_old(c, now) // 7, -verdicts[c["id"]]["q"], -strength(c))
+        return (0 if c.get("award") else 1, 0 if c["venue"] else 1, days_old(c, now) // 7,
+                -verdicts[c["id"]]["q"], -strength(c))
 
     by_section = {s: sorted((c for c in pool if verdicts[c["id"]]["s"] == s), key=priority)
                   for s in SECTIONS}
@@ -716,6 +760,22 @@ def main():
     log("Relevant pool: " + ", ".join(
         f"{SECTIONS[s]} {sum(1 for c in pool if verdicts[c['id']]['s'] == s)}" for s in SECTIONS))
 
+    # award notes in arXiv comments: for published candidates with an arXiv version (arXiv
+    # candidates already carry theirs) and for this year's stories (awards come later)
+    apply_manual_awards(candidates)
+    recent = str((now - timedelta(days=365)).date())
+    ids = [c["arxiv"] for c in pool if c.get("arxiv") and c["venue"] and not c.get("award")]
+    ids += [p["arxiv"] for p in stories.values() if p.get("arxiv") and p["added"] >= recent]
+    try:
+        awards = arxiv_awards(ids) if ids else {}
+    except Exception as e:
+        log(f"arXiv award check failed: {e}")
+        awards = {}
+    for p in pool + list(stories.values()):
+        if awards.get(p.get("arxiv")):
+            p["award"] = awards[p["arxiv"]]
+    log(f"Awards: {len(awards)} found in arXiv comments")
+
     # 4. choose and write this week's stories
     batch = select(pool, verdicts, slots, now)
     log("This edition: " + ", ".join(
@@ -734,10 +794,12 @@ def main():
             "score": max(1, min(5, j["score"])), "authors": authors_str(p["authors"]),
             "url": p["url"], "date": p["date"], "added": str(now.date()), "edition": edition,
             "venue": p.get("venue") or "", "venue_year": p.get("venue_year"), "dblp": p.get("dblp"),
-            "ai": j["ai"],
+            "ai": j["ai"], "award": p.get("award") or "",
         }
     if use_claude:
         log(f"Claude ({MODEL}): {USAGE['input']} input / {USAGE['output']} output tokens")
+
+    apply_manual_awards(list(stories.values()))
 
     # 5. write
     keep_cutoff = str((now - timedelta(days=KEEP_DAYS)).date())

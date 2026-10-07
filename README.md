@@ -33,6 +33,21 @@ Thirty-Fifth International Joint Conference ...", which its venue filter does no
 and some IJCAI papers are missing from Semantic Scholar entirely. Google Scholar has no API,
 and DBLP's API blocks automated clients.
 
+### Cover stories and awards
+
+An edition has a cover story only if one of its papers won a prize (best/outstanding/
+distinguished paper, honourable mention, test of time). Awards are found automatically
+in arXiv comments (e.g. "Best Paper Award, IJCAI 2026"), and this year's stories are
+re-checked every week. To add an award by hand, edit `data/awards.json` on GitHub:
+
+    [
+      {"match": "10.24963/ijcai.2026/373", "award": "Best Paper Award, IJCAI 2026"},
+      {"match": "2506.01234", "award": "Outstanding Paper, ICML 2026"},
+      {"match": "Exact paper title also works", "award": "Honourable mention, EC 2026"}
+    ]
+
+Within an edition, stories are grouped by section and then by category.
+
 ## Settings (Settings → Secrets and variables → Actions)
 
 | Name | Kind | Default | Meaning |

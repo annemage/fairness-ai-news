@@ -58,29 +58,43 @@
   .source a { text-decoration: underline; text-decoration-color: var(--hair); text-underline-offset: 2px; }
   .source a:hover { color: var(--hover); }
 
+  /* award-winning cover story (only when a paper in this edition won a prize) */
   .front { display: grid; grid-template-columns: 2fr 1fr; border-bottom: 1px solid var(--rule); }
+  .front.solo { grid-template-columns: 1fr; }
   .front > * { min-width: 0; padding: 20px 0 18px; }
   .lead { padding-right: 22px !important; border-right: 1px solid var(--hair); }
-  .lead h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.12; text-align: left; }
+  .front.solo .lead { padding-right: 0 !important; border-right: 0; max-width: 820px; }
+  .lead h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.12; }
   .lead p { font-size: 19px; }
   .lead p::first-letter { float: left; font: 700 3.1em/0.82 "Libre Caslon Text", serif; padding: 4px 6px 0 0; }
   .side { padding-left: 22px !important; }
   .side .story + .story { border-top: 1px solid var(--hair); margin-top: 14px; padding-top: 14px; }
   .side h3 { font-size: 21px; }
+  .prize { display: inline-block; border: 1px solid var(--ink); padding: 0 6px; margin: 2px 0 4px;
+           font: 700 11.5px "Source Serif 4", serif; text-transform: uppercase; letter-spacing: 1px; }
+  .prize::before { content: "\2605  "; }
 
-  .columns { column-count: 3; column-gap: 34px; column-rule: 1px solid var(--hair); padding: 18px 0 6px; }
-  .columns .story { break-inside: avoid; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--hair); }
-  .columns h3 { font-size: 19px; }
-  .columns p { font-size: 16px; }
+  /* sections, then categories grouped under small headings */
+  .sec-head { text-align: center; font: 700 20px "Libre Caslon Text", serif; font-variant: small-caps;
+              letter-spacing: 1.5px; border-top: 3px double var(--rule); border-bottom: 1px solid var(--rule);
+              padding: 5px 0 3px; margin: 26px 0 4px; }
+  .cat { padding-top: 12px; }
+  .cat-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+              font: 700 12.5px "Source Serif 4", serif; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+  .cat-head::after { content: ""; flex: 1; border-top: 1px solid var(--hair); }
+  .cat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 34px; }
+  .cat-grid .story { padding-bottom: 12px; }
+  .cat-grid h3 { font-size: 19px; }
+  .cat-grid p { font-size: 16px; }
+  .cat-grid.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cat-grid.compact h3 { font-size: 17px; }
+  .cat-grid.compact p { font-size: 15px; }
 
   .rubric { text-align: center; font: 700 15px "Libre Caslon Text", serif; font-variant: small-caps;
             letter-spacing: 1px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
-            padding: 4px 0; margin: 22px 0 0; }
-  .archive .story { display: grid; grid-template-columns: 120px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--hair); }
-  .archive .story > * { min-width: 0; }
-  .archive .when { font-size: 13.5px; color: var(--muted); font-style: italic; padding-top: 3px; }
-  .archive h3 { font-size: 18px; margin-top: 0; }
-  .archive p { font-size: 16px; }
+            padding: 4px 0; margin: 34px 0 0; }
+  .ed-head { margin: 20px 0 0; font: italic 600 16px "Source Serif 4", serif; text-align: center; color: var(--muted); }
+  .archive .sec-head { font-size: 16px; margin-top: 10px; border-top: 1px solid var(--rule); }
   .more { display: block; margin: 20px auto 10px; background: none; border: 1px solid var(--rule); color: var(--ink);
           padding: 7px 22px; font: italic 15px "Source Serif 4", serif; cursor: pointer; }
   .more:hover { color: var(--hover); border-color: var(--hover); }
@@ -88,13 +102,12 @@
   footer { border-top: 3px double var(--rule); margin-top: 26px; padding: 12px 0 40px; color: var(--muted);
            font-size: 13.5px; font-style: italic; text-align: center; }
 
-  @media (max-width: 900px) { .columns { column-count: 2; } }
+  @media (max-width: 900px) { .cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 680px) {
     .front { grid-template-columns: 1fr; }
     .lead { padding-right: 0 !important; border-right: 0; border-bottom: 1px solid var(--hair); }
     .side { padding-left: 0 !important; }
-    .columns { column-count: 1; }
-    .archive .story { grid-template-columns: 1fr; gap: 0; }
+    .cat-grid, .cat-grid.compact { grid-template-columns: 1fr; }
     .ears span:last-child { display: none; }
     .index button { font-size: 14px; padding: 2px 7px; }
     .index button + button { border-left: 0; }
@@ -117,7 +130,7 @@
 </div>
 
 <script>
-let DATA = null, filter = "all", peerOnly = false, archiveShown = 25;
+let DATA = null, filter = "all", peerOnly = false, editionsShown = 2;
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = (d, opts = { day: "numeric", month: "long", year: "numeric" }) => {
@@ -126,6 +139,7 @@ const fmt = (d, opts = { day: "numeric", month: "long", year: "numeric" }) => {
   return isNaN(dt) ? d : dt.toLocaleDateString("en-GB", opts);
 };
 const catLabel = p => (DATA.categories[p.category] || {}).label || DATA.sections[p.section] || "";
+const byRank = (a, b) => (b.award ? 1 : 0) - (a.award ? 1 : 0) || b.score - a.score || (b.venue ? 1 : 0) - (a.venue ? 1 : 0);
 
 function source(p) {
   let venue;
@@ -135,12 +149,32 @@ function source(p) {
   } else venue = `arXiv preprint`;
   return `<div class="source">${venue} — ${esc(p.authors)}</div>`;
 }
-function story(p, h = "h3") {
+function story(p, h = "h3", kicker = false) {
   return `<article class="story">
-    <div class="kicker">${esc(catLabel(p))}</div>
+    ${kicker ? `<div class="kicker">${esc(catLabel(p))}</div>` : ""}
+    ${p.award ? `<div class="prize">${esc(p.award)}</div>` : ""}
     <a href="${esc(p.url)}" target="_blank" rel="noopener"><${h}>${esc(p.headline)}</${h}></a>
     <p>${esc(p.blurb)}</p>${source(p)}
   </article>`;
+}
+
+// Section heading, then one block per category: papers of a category sit together
+function grouped(items, compact = false) {
+  let html = "";
+  const cats = Object.entries(DATA.categories);
+  for (const [s, slabel] of Object.entries(DATA.sections)) {
+    const inSec = items.filter(p => p.section === s);
+    if (!inSec.length) continue;
+    html += `<div class="sec-head">${esc(slabel)}</div>`;
+    const groups = cats.filter(([, c]) => c.section === s).map(([k, c]) => [c.label, inSec.filter(p => p.category === k)]);
+    groups.push(["Other", inSec.filter(p => !DATA.categories[p.category])]);
+    for (const [label, ps] of groups) {
+      if (!ps.length) continue;
+      html += `<div class="cat"><div class="cat-head">${esc(label)}</div>
+        <div class="cat-grid${compact ? " compact" : ""}">${ps.sort(byRank).map(p => story(p)).join("")}</div></div>`;
+    }
+  }
+  return html;
 }
 
 function buildIndex() {
@@ -154,7 +188,7 @@ function buildIndex() {
   html += `<div class="opts"><label><input type="checkbox" id="peer"> Peer-reviewed papers only</label></div>`;
   const nav = document.getElementById("index");
   nav.innerHTML = html;
-  nav.querySelectorAll("button").forEach(b => b.onclick = () => { filter = b.dataset.f; archiveShown = 25; render(); });
+  nav.querySelectorAll("button").forEach(b => b.onclick = () => { filter = b.dataset.f; editionsShown = 2; render(); });
   document.getElementById("peer").onchange = e => { peerOnly = e.target.checked; render(); };
 }
 
@@ -166,25 +200,30 @@ function render() {
   if (!items.length) { main.innerHTML = `<div class="empty">Nothing in this section yet — check back next week.</div>`; return; }
 
   const latest = items[0].added;
-  const edition = items.filter(p => p.added === latest).sort((a, b) => b.score - a.score || (b.venue ? 1 : 0) - (a.venue ? 1 : 0));
-  const rest = items.filter(p => p.added !== latest);
-  const top = edition.slice(0, 3), more = edition.slice(3);
+  const edition = items.filter(p => p.added === latest);
+  let html = "";
 
-  let html = `<div class="front"><div class="lead">${story(top[0], "h2")}</div>
-    <div class="side">${top.slice(1).map(p => story(p)).join("") || ""}</div></div>`;
-  if (more.length) html += `<div class="columns">${more.map(p => story(p)).join("")}</div>`;
-  if (rest.length) {
-    html += `<div class="rubric">From earlier editions</div><div class="archive">` +
-      rest.slice(0, archiveShown).map(p => `<article class="story">
-        <div class="when">${fmt(p.added, { day: "numeric", month: "short", year: "numeric" })}</div>
-        <div><div class="kicker">${esc(catLabel(p))}</div>
-        <a href="${esc(p.url)}" target="_blank" rel="noopener"><h3>${esc(p.headline)}</h3></a>
-        <p>${esc(p.blurb)}</p>${source(p)}</div></article>`).join("") +
-      `</div>${rest.length > archiveShown ? `<button class="more" id="more">Older stories</button>` : ""}`;
+  // Cover story only for award-winning papers
+  const prized = edition.filter(p => p.award).sort(byRank).slice(0, 3);
+  if (prized.length) {
+    html += `<div class="front${prized.length === 1 ? " solo" : ""}"><div class="lead">${story(prized[0], "h2", true)}</div>` +
+      (prized.length > 1 ? `<div class="side">${prized.slice(1).map(p => story(p, "h3", true)).join("")}</div>` : "") + `</div>`;
+  }
+  html += grouped(edition.filter(p => !prized.includes(p)));
+
+  // Earlier editions, newest first, each grouped the same way
+  const dates = [...new Set(items.filter(p => p.added !== latest).map(p => p.added))];
+  if (dates.length) {
+    html += `<div class="rubric">From earlier editions</div><div class="archive">`;
+    for (const d of dates.slice(0, editionsShown)) {
+      const ps = items.filter(p => p.added === d);
+      html += `<div class="ed-head">Edition of ${fmt(d, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div>` + grouped(ps, true);
+    }
+    html += `</div>` + (dates.length > editionsShown ? `<button class="more" id="more">Older editions</button>` : "");
   }
   main.innerHTML = html;
   const m = document.getElementById("more");
-  if (m) m.onclick = () => { archiveShown += 25; render(); };
+  if (m) m.onclick = () => { editionsShown += 2; render(); };
 }
 
 fetch("papers.json", { cache: "no-cache" }).then(r => r.json()).then(d => {
