@@ -28,6 +28,8 @@ jobs:
           MODEL: ${{ vars.MODEL }}
           MAX_PER_WEEK: ${{ vars.MAX_PER_WEEK }}
           PEER_LOOKBACK_WEEKS: ${{ vars.PEER_LOOKBACK_WEEKS }}
+          MIN_PER_SECTION: ${{ vars.MIN_PER_SECTION }}
+          MAX_TRIAGE: ${{ vars.MAX_TRIAGE }}
           S2_API_KEY: ${{ secrets.S2_API_KEY }}
         run: python scripts/update.py
       - name: Commit if changed
