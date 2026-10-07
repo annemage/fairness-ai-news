@@ -33,6 +33,14 @@ Thirty-Fifth International Joint Conference ...", which its venue filter does no
 and some IJCAI papers are missing from Semantic Scholar entirely. Google Scholar has no API,
 and DBLP's API blocks automated clients.
 
+### No paper twice
+
+Published papers often also appear on arXiv, sometimes under a slightly different title.
+A paper is skipped when it matches a story from an earlier edition (or another candidate
+of the same week) by DOI, arXiv id, identical title, or a near-identical title (word
+overlap of at least 85%, or at least 60% plus a shared author). Published stories are
+linked to their arXiv id via Semantic Scholar, so later arXiv versions match by id.
+
 ### Cover stories and awards
 
 An edition has a cover story only if one of its papers won a prize (best/outstanding/

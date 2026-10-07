@@ -34,6 +34,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -273,6 +274,61 @@ def title_key(t):
     return re.sub(r"[^a-z0-9]", "", (t or "").lower())[:120]
 
 
+STOPWORDS = set("a an and are as at by for from in into is of on or the to via with without "
+                "towards toward under over using its their our we".split())
+
+
+def title_words(t):
+    return {w for w in re.findall(r"[a-z0-9]+", (t or "").lower()) if w not in STOPWORDS}
+
+
+def surnames(authors):
+    """Author last names, accents stripped. Accepts a list or the stories' "A, B et al." string."""
+    if isinstance(authors, str):
+        authors = authors.replace(" et al.", "").split(", ")
+    out = set()
+    for a in authors or []:
+        a = unicodedata.normalize("NFKD", a).encode("ascii", "ignore").decode().lower().strip()
+        if a:
+            out.add(a.split()[-1])
+    return out
+
+
+def same_paper(a, b):
+    """Same work under (possibly slightly) different titles, e.g. arXiv vs. proceedings."""
+    if title_key(a["title"]) == title_key(b["title"]):
+        return True
+    wa, wb = title_words(a["title"]), title_words(b["title"])
+    if not wa or not wb:
+        return False
+    j = len(wa & wb) / len(wa | wb)
+    return j >= 0.85 or (j >= 0.6 and bool(surnames(a["authors"]) & surnames(b["authors"])))
+
+
+class PaperIndex:
+    """Fast lookup of likely duplicates: only compare papers sharing several title words."""
+
+    def __init__(self):
+        self.papers, self.by_word = [], {}
+
+    def add(self, p):
+        self.papers.append(p)
+        for w in title_words(p["title"]):
+            self.by_word.setdefault(w, []).append(len(self.papers) - 1)
+
+    def find(self, q):
+        hits = {}
+        for w in title_words(q["title"]):
+            for i in self.by_word.get(w, ()):
+                hits[i] = hits.get(i, 0) + 1
+        for i, n in sorted(hits.items(), key=lambda x: -x[1]):
+            if n < 3 and n < len(title_words(q["title"])):
+                break
+            if same_paper(q, self.papers[i]):
+                return self.papers[i]
+        return None
+
+
 def short_venue(name):
     if not name:
         return ""
@@ -480,6 +536,21 @@ def apply_manual_awards(papers):
         for p in papers:
             if m in (p["id"].lower(), (p.get("arxiv") or "").lower(), "doi:" + m) or title_key(m) == title_key(p["title"]):
                 p["award"] = entry["award"]
+
+
+def s2_arxiv_ids(dois):
+    """DOI -> arXiv id, for published papers that also have an arXiv version."""
+    found, dois = {}, list(dict.fromkeys(dois))
+    for i in range(0, len(dois), 400):
+        chunk = dois[i:i + 400]
+        res = json.loads(http("https://api.semanticscholar.org/graph/v1/paper/batch?fields=externalIds",
+                              data={"ids": [f"DOI:{d}" for d in chunk]}))
+        for doi, r in zip(chunk, res):
+            aid = ((r or {}).get("externalIds") or {}).get("ArXiv")
+            if aid:
+                found[doi] = aid
+        time.sleep(2)
+    return found
 
 
 def s2_venue_lookup(arxiv_ids):
@@ -704,18 +775,66 @@ def main():
         except Exception as e:  # never let one source kill the run
             log(f"{name} failed: {e}")
 
+    # Published papers in earlier editions: learn their arXiv ids (if any) from Semantic
+    # Scholar, so the arXiv version is recognised as the same paper by id.
+    unlinked = [p["id"][4:] for p in stories.values()
+                if p["id"].startswith("doi:") and not p.get("arxiv") and not p.get("arxiv_checked")]
+    try:
+        links = s2_arxiv_ids(unlinked) if unlinked else {}
+    except Exception as e:
+        log(f"arXiv-link lookup failed: {e}")
+        links = None
+    if links is not None:
+        for p in stories.values():
+            if p["id"].startswith("doi:") and p["id"][4:] in unlinked:
+                if links.get(p["id"][4:]):
+                    p["arxiv"] = links[p["id"][4:]]
+                    known_arxiv.add(p["arxiv"])
+                elif p["added"] < str((now - timedelta(days=365)).date()):
+                    p["arxiv_checked"] = True  # stop asking after a year
+        log(f"arXiv versions of published stories: {len(links)} of {len(unlinked)} found")
+
+    story_index = PaperIndex()
+    for p in stories.values():
+        story_index.add(p)
+
     candidates, ids, titles = [], set(), set()
+    peer_index = PaperIndex()
+    dup_story = dup_peer = 0
     for c in raw:
         tk = title_key(c["title"])
-        if (c["id"] in seen or c["id"] in ids or tk in titles or tk in known_titles
-                or (c.get("arxiv") and c["arxiv"] in known_arxiv)):
+        if c["id"] in seen or c["id"] in ids:
+            continue
+        if tk in known_titles or (c.get("arxiv") and c["arxiv"] in known_arxiv):
+            dup_story += 1  # exact title / arXiv id of a story in an earlier edition
+            continue
+        if tk in titles:
+            dup_peer += 1   # exact-title twin of a candidate already collected this week
             continue
         ids.add(c["id"])
         titles.add(tk)
         if not passes_prefilter(c):
             seen.add(c["id"])
             continue
+        # Same paper as a story in an earlier edition (arXiv <-> published version)?
+        twin = story_index.find(c)
+        if twin:
+            if c.get("arxiv") and not twin.get("arxiv"):
+                twin["arxiv"] = c["arxiv"]  # remember the link, so next time it matches by id
+            seen.add(c["id"])
+            dup_story += 1
+            continue
+        if c["venue"]:
+            peer_index.add(c)
+        else:  # arXiv preprint: is its published version already a candidate this week?
+            twin = peer_index.find(c)
+            if twin:
+                twin["arxiv"] = twin.get("arxiv") or c.get("arxiv")  # also enables the award check
+                dup_peer += 1
+                continue
         candidates.append(c)
+    log(f"Duplicates skipped: {dup_story} already in an earlier edition, "
+        f"{dup_peer} second copies (arXiv or another database) of this week's candidates")
 
     # 2. venue lookup: preprints that may since have been published + older preprint stories
     recheck_cutoff = str((now - timedelta(days=RECHECK_DAYS)).date())
